@@ -2,104 +2,213 @@
 
 /*
 Plugin Name: Ad Switcher
-Description: Toggle between ad unit setups
+Description: Toggle native ad unit slots on & off.
 Version: 0.1.0
 License: GPL
 Author: Aaron Smulktis
 Author URI: http://thickmaterial.com
 */
 
-if ( is_admin() ){
-  add_action( 'admin_menu', 'ad_switcher' );
-  add_action('admin_init', 'ad_switcher_init');
-  // add_action( 'admin_init', 'register_mysettings' );
-} else {
-  // non-admin enqueues, actions, and filters
-}
+add_action( 'admin_menu', 'ads_switcher_add_admin_menu' );
+add_action( 'admin_init', 'ads_switcher_settings_init' );
 
-// 1) Link 2) Page title 3) capability [admin only] 4) slug 5) callback
-function ad_switcher() {
-    add_options_page(
-        'Ad Switcher',
-        'Ad Switcher',
-        'manage_options',
-        'ad-switcher',
-        'ad_switcher_page'
-    );
-}
+add_action('sm_unit', 'sm_script', 1);
+add_action('md_unit', 'md_script', 1);
+add_action('lg_unit', 'lg_script', 1);
 
-// Make the options page
-function ad_switcher_page() {
-    ?>
-    <div class="wrap">
-        <h2>Ad Switcher Options</h2>
-        <form action="options.php" method="post">
-        <?php settings_fields('ad_switcher_init'); ?>
-        <?php do_settings_sections('ad-switcher'); ?>
+function ads_switcher_add_admin_menu(  ) {
 
-        <input name="Submit" type="submit" value="<?php esc_attr_e('Save Changes'); ?>" />
-        </form></div>
-    </div>
-    <?php
-}
-
-// Initialize
-function ad_switcher_init() {
-  // DB field, stored in one field as array
-  register_setting( 'ad_switcher_options', 'ad_switcher_options', 'ad_switcher_options_validate' );
-
-  // Add section of settings
-  // 1) unique ID 2) title output 3) callback 4) page name
-  add_settings_section('ad_switcher_wallpaper', 'Wallpaper Options', 'ad_switcher_wallpaper_text', 'ad-switcher');
-
-  // 1) unique ID 2) title output 3) callback 4) page attached 5) ID of settings section
-  add_settings_field('ad_switcher_text_string', 'Ad Switcher Text Input', 'ad_switcher_setting_string', 'ad-switcher', 'ad_switcher_wallpaper');
-
-  add_settings_field(
-      'wallpaper',
-      'Is the wallpaper visible?',
-      'ad_switcher_wallpaper_callback',
-      'ad-switcher',
-      'ad_switcher_wallpaper'
-  );
+	add_options_page( 'Ad Switcher', 'Ad Switcher', 'manage_options', 'ad_switcher', 'ads_switcher_options_page' );
 
 }
 
-// Wallpaper paragraph
-function ad_switcher_wallpaper_text() {
-  echo '
-    <p>
-      This controls whether or not the wallpaper is visible on the site or not. The mobile wallpaper is currently only visible on mobile devices, and it appears as the very first thing on the site, fullscreen, above the main carousel.
-    </p>
-  ';
+
+function ads_switcher_settings_init(  ) {
+
+	register_setting( 'pluginPage', 'ads_switcher_settings', 'validate' );
+
+	add_settings_section(
+		'ads_switcher_pluginPage_section',
+		__( 'Native Ad Units', 'wordpress' ),
+		'ads_switcher_settings_section_callback',
+		'pluginPage'
+	);
+
+	add_settings_field(
+		'ads_switcher_checkbox_field_0',
+		__( 'Small (The Daily Dish)', 'wordpress' ),
+		'ads_switcher_checkbox_field_0_render',
+		'pluginPage',
+		'ads_switcher_pluginPage_section'
+	);
+
+	add_settings_field(
+		'ads_switcher_checkbox_field_1',
+		__( 'Medium (page feeds)', 'wordpress' ),
+		'ads_switcher_checkbox_field_1_render',
+		'pluginPage',
+		'ads_switcher_pluginPage_section'
+	);
+
+	add_settings_field(
+		'ads_switcher_checkbox_field_2',
+		__( 'Large (mobile wallpaper)', 'wordpress' ),
+		'ads_switcher_checkbox_field_2_render',
+		'pluginPage',
+		'ads_switcher_pluginPage_section'
+	);
+
+
 }
 
-// Add input element option
-function ad_switcher_setting_string() {
-  $options = get_option('ad_switcher_options');
-  echo "<input id='ad_switcher_text_string' name='ad_switcher_options[text_string]' size='40' type='text' value='{$options['text_string']}' />";
+
+function ads_switcher_checkbox_field_0_render(  ) {
+
+	$options = get_option( 'ads_switcher_settings' );
+	?>
+	<input type='checkbox' name='ads_switcher_settings[ads_switcher_checkbox_field_0]' <?php checked( $options['ads_switcher_checkbox_field_0'], 1 ); ?> value='1'>
+	<?php
+
 }
 
-// TEST CHECKBOX OPTION
-function ad_switcher_wallpaper_callback() {
 
-    $options = get_option( 'ad_switcher_options' );
+function ads_switcher_checkbox_field_1_render(  ) {
 
-    $html = '<input type="checkbox" id="wallpaperCheckbox" name="ad_switcher_options[checkbox_example]" value="1"' . checked( 1, $options['checkbox_example'], false ) . '/>';
-    $html .= '<label for="wallpaperCheckbox">Mobile</label>';
+	$options = get_option( 'ads_switcher_settings' );
+	?>
+	<input type='checkbox' name='ads_switcher_settings[ads_switcher_checkbox_field_1]' <?php checked( $options['ads_switcher_checkbox_field_1'], 1 ); ?> value='1'>
+	<?php
 
-    echo $html;
+}
+
+
+function ads_switcher_checkbox_field_2_render(  ) {
+
+	$options = get_option( 'ads_switcher_settings' );
+	?>
+	<input type='checkbox' name='ads_switcher_settings[ads_switcher_checkbox_field_2]' <?php checked( $options['ads_switcher_checkbox_field_2'], 1 ); ?> value='1'>
+	<?php
+
+}
+
+
+function ads_switcher_settings_section_callback(  ) {
+
+	echo __( 'Toggle the visibility of these ad units on & off', 'wordpress' );
 
 }
 
 // Validate all the options
-function plugin_options_validate($input) {
-  $options = get_option('ad_switcher_options');
-  $options['text_string'] = trim($input['text_string']);
-  if(!preg_match('/^[a-z0-9]{32}$/i', $options['text_string'])) {
-    $options['text_string'] = '';
-  }
+function ad_switcher_settings_validate($input) {
+	$options = get_option( 'ad_switcher_settings' );
+  if ( ! isset( $input['checkbox'] ) || $input['checkbox'] != '1' )
+    $options['checkbox'] = 0;
+  else
+    $options['checkbox'] = 1;
   return $options;
+}
+
+function validate($input) {
+	// All checkboxes inputs
+	$valid = array();
+
+	//Cleanup
+	$valid['ads_switcher_checkbox_field_0'] = (isset($input['ads_switcher_checkbox_field_0']) && !empty($input['ads_switcher_checkbox_field_0'])) ? 1 : 0;
+	$valid['ads_switcher_checkbox_field_1'] = (isset($input['ads_switcher_checkbox_field_1']) && !empty($input['ads_switcher_checkbox_field_1'])) ? 1 : 0;
+	$valid['ads_switcher_checkbox_field_2'] = (isset($input['ads_switcher_checkbox_field_2']) && !empty($input['ads_switcher_checkbox_field_2'])) ? 1 : 0;
+
+	return $valid;
+}
+
+// DEBUGGIN' & console loggin
+function debug_to_console( $data ) {
+
+	if ( is_array( $data ) ) {
+			$output = "<script>console.log( 'Debug Objects: " . implode( ',', $data) . "' );</script>";
+	} else {
+			$output = "<script>console.log( 'Debug Objects: " . $data . "' );</script>";
+	}
+
+	echo $output;
+}
+
+function sm_unit() {
+    do_action('sm_unit');
+}
+
+function md_unit() {
+    do_action('md_unit');
+}
+
+function lg_unit() {
+    do_action('lg_unit');
+}
+
+function sm_script() {
+	$options = get_option('ads_switcher_settings');
+	if ($options['ads_switcher_checkbox_field_0'] == '1') {
+		echo __(
+			"
+				<!-- /60899964/Galore_Small_Native -->
+				<div id='div-gpt-ad-1470080205208-2' style='height:240px; width:200px;'>
+				<script>
+				googletag.cmd.push(function() { googletag.display('div-gpt-ad-1470080205208-2'); });
+				</script>
+				</div>
+			"
+		);
+	}
+}
+
+function md_script() {
+	$options = get_option('ads_switcher_settings');
+	if ($options['ads_switcher_checkbox_field_1'] == '1') {
+		echo __(
+			"
+				<!-- /60899964/Galore_Medium_Native -->
+				<div id='div-gpt-ad-1470080205208-0'>
+				<script>
+				googletag.cmd.push(function() { googletag.display('div-gpt-ad-1470080205208-0'); });
+				</script>
+				</div>
+			"
+		);
+	}
+}
+
+function lg_script() {
+	$options = get_option('ads_switcher_settings');
+	if ($options['ads_switcher_checkbox_field_2'] == '1') {
+		echo __(
+			"
+				<!-- /60899964/Galore_Mobile_Wallpaper -->
+				<div id='div-gpt-ad-1470080205208-1'>
+				<script>
+				googletag.cmd.push(function() { googletag.display('div-gpt-ad-1470080205208-1'); });
+				</script>
+				</div>
+			"
+		);
+	}
+}
+
+// Add the page in backend
+function ads_switcher_options_page(  ) {
+
+	?>
+	<form action='options.php' method='post'>
+
+		<h2>Ad Switcher</h2>
+
+		<?php
+		settings_fields( 'pluginPage' );
+		do_settings_sections( 'pluginPage' );
+		submit_button();
+		?>
+
+	</form>
+	<?php
+
 }
 
 ?>
