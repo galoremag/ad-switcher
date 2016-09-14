@@ -171,6 +171,7 @@ function md_script() {
 				googletag.cmd.push(function() { googletag.display('div-gpt-ad-1470080205208-0'); });
 				</script>
 				</div>
+				<hr />
 			"
 		);
 	}
