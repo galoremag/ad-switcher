@@ -150,9 +150,9 @@ function sm_script() {
 		echo __(
 			"
 				<!-- /60899964/Galore_Small_Native -->
-				<div id='div-gpt-ad-1470080205208-2' style='height:240px; width:200px;'>
+				<div id='div-gpt-ad-1475101281851-0'>
 				<script>
-				googletag.cmd.push(function() { googletag.display('div-gpt-ad-1470080205208-2'); });
+				googletag.cmd.push(function() { googletag.display('div-gpt-ad-1475101281851-0'); });
 				</script>
 				</div>
 			"
