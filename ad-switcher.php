@@ -166,6 +166,7 @@ function md_script() {
 		echo __(
 			"
 				<!-- /60899964/Galore_Medium_Native -->
+				<hr />
 				<div id='div-gpt-ad-1470080205208-0'>
 				<script>
 				googletag.cmd.push(function() { googletag.display('div-gpt-ad-1470080205208-0'); });
