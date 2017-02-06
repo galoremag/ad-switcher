@@ -1,7 +1,5 @@
 <?php
 
-
-
 if ( is_admin() ){
   add_action( 'admin_menu', 'ad_switcher' );
   add_action('admin_init', 'ad_switcher_init');
